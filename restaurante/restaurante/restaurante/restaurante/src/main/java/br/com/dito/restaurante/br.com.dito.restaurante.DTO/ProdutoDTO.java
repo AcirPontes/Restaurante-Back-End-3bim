@@ -7,10 +7,7 @@ public class ProdutoDTO{
     private Double preco;
 
     //Construtor
-    public ProdutoDTO(Long id, String nome, Double preco){
-        this.id = id;
-        this.nome = nome;
-        this.preco = preco;
+    public ProdutoDTO(){
     }
 
     //Getter e Setters

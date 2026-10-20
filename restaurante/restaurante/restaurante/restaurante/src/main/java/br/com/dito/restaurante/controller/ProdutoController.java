@@ -4,43 +4,55 @@ import br.com.dito.restaurante.service.ProdutoService;
 //import br.com.dito.restaurante.model.Produto;
 //import br.com.dito.restaurante.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+//import java.util.List;
 //import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @RequestMapping("/produtos")
 public class ProdutoController {
 
-    private final ProdutoRepository produtoRepository;
+    //private final ProdutoRepository produtoRepository;
 
     @Autowired
     private ProdutoService produtoService;
 
     @GetMapping
-    public List(<ProdutoDTO> listarTodos(){
-        return produtoService.listarTodos();
+    public String listar(Model model){
+        model.addAttribute("produto", produtoService.listarTodos());
+        return "produto/lista";
     }
 
-    @PostMapping
-    public ProdutoDTO criarProduto(@RequestBody ProdutoDTO dto){
-        return produtoService.adicionarProduto(dto);
+    @GetMapping("/cadastrar")
+    public String novoProduto(Model model){
+        model.addAttribute("produto", new ProdutoDTO());
+        return "produto/formCadastrar";
     }
 
-    @PutMapping("/{id}")
-    public ProdutoDTO atualizarProduto(@PathVariable Long id, @RequestBody ProdutoDTO dto){
-        return produtoService.atualizarProduto(id, dto);
+    @PostMapping("/salvar")
+    public String salvar(@ModelAttribute ProdutoDTO dto) {
+        if (dto.getId() == null) {
+            produtoService.adicionarProduto(dto);
+        } else {
+            produtoService.atualizarProduto(dto.getId(), dto);
+        }
+        return "redirect:/produtos";
     }
 
-    @DeleteMapping("/{id}")
-    public void deletarProduto(@PathVariable Long id){
+    @GetMapping("/editar/{id}")
+    public String editar(@PathVariable Long id, Model model) {
+        ProdutoDTO dto = produtoService.buscarPorId(id);
+        model.addAttribute("produtos", dto);
+        return "produto/form";
+    }
+
+    @GetMapping("/excluir/{id}")
+    public String excluir(@PathVariable Long id) {
         produtoService.deletarProduto(id);
+        return "redirect:/produtos";
     }
 
-    // Endpoint para buscar produtos entre preços
-    @GetMapping("/precos")
-    public list<ProdutoDTO> buscarEntrePrecos(@RequestParam Double min, @RequestParam Double max){
-        return produtoService.buscarProdutosEntrePrecos(min, max);
-    }
 }
